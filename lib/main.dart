@@ -2,8 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:voice_prescription/screens/home/Dashboard.dart';
-import 'package:voice_prescription/screens/login_signup/Login.dart';
+import 'package:voice_prescription/modals/user.dart';
+import 'package:voice_prescription/screens/app.dart';
+import 'package:voice_prescription/screens/auth/login.dart';
 
 void main() {
   runApp(MyApp());
@@ -74,18 +75,12 @@ class HomeApp extends StatelessWidget {
         }
         // Once complete, show your application
         if (snapshot.hasData) {
-          // User loginUser = snapshot.data;
-          User loginUser;
-
-          // FirebaseFirestore.instance
-          //     .collection("user")
-          //     .where("email", isEqualTo: snapshot.data.email)
-          //     .get()
-          //     .then((value) => loginUser = value.docs.first.data());
-          return FancyBottomBarPage(loginUser: loginUser);
+          print("Main");
+          print(snapshot.data.uid);
+          return Dashboard(uid: snapshot.data.uid);
         } else {
           print("Make Login");
-          return LoginTwoPage();
+          return LoginScreen();
         }
       },
     );

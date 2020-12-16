@@ -24,10 +24,11 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_custom_clippers: ^1.1.1
+  fancy_bottom_navigation: ^0.3.2
   firebase_core: ^0.5.3
   firebase_auth: ^0.18.4
   cloud_firestore: ^0.14.4
-  toast: ^0.1.5
+  provider: ^4.3.2+2
 
  
 

@@ -2,19 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
-import 'package:voice_prescription/screens/home/Dashboard.dart';
-import '../../modals/user.dart' as lUser;
-//import 'package:flutter_ui_challenges/core/presentation/res/assets.dart';
-//import 'package:flutter_ui_challenges/src/widgets/network_image.dart';
+import 'package:voice_prescription/modals/user.dart';
 
-class SignupOnePage extends StatefulWidget {
-  static final String path = "lib/src/pages/login/signup1.dart";
-
+class SignupScreen extends StatefulWidget {
   @override
-  _SignupOnePageState createState() => _SignupOnePageState();
+  _SignupScreenState createState() => _SignupScreenState();
 }
 
-class _SignupOnePageState extends State<SignupOnePage> {
+class _SignupScreenState extends State<SignupScreen> {
   var isSelected = [true, false];
   // var textController = TextEditingController();
   final TextEditingController _pass = TextEditingController();
@@ -22,7 +17,7 @@ class _SignupOnePageState extends State<SignupOnePage> {
   final _formKey = GlobalKey<FormState>();
   bool enabled = true;
 
-  lUser.User user = lUser.User();
+  UserModal user = UserModal();
   Widget _buildPageContent(BuildContext context) {
     return Container(
       color: Colors.green.shade100,
@@ -324,7 +319,11 @@ class _SignupOnePageState extends State<SignupOnePage> {
                           UserCredential userCredential = await FirebaseAuth
                               .instance
                               .createUserWithEmailAndPassword(
-                                  email: user.email, password: user.password);
+                                  email: user.email, password: user.password)
+                              .then((value) {
+                            user.uid = value.user.uid;
+                            return;
+                          });
                         } on FirebaseAuthException catch (e) {
                           if (e.code == 'weak-password') {
                             print('The password provided is too weak.');
@@ -339,15 +338,13 @@ class _SignupOnePageState extends State<SignupOnePage> {
                             FirebaseFirestore.instance;
                         firestore
                             .collection("users")
-                            .add(user.toMap())
+                            .doc(user.uid)
+                            .set(user.toMap())
                             .then((data) {
-                          print(data);
-                          // Navigator.of(context).push(MaterialPageRoute(
-                          //     builder: (BuildContext context) =>
-                          //         FancyBottomBarPage()));
                           setState(() {
                             enabled = enabled ? false : true;
                           });
+                          Navigator.pop(context);
                         }).catchError(print);
                       }
                     : null,

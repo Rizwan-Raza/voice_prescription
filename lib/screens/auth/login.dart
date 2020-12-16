@@ -1,17 +1,11 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
-import 'package:toast/toast.dart';
-//import 'package:flutter_ui_challenges/core/presentation/res/assets.dart';
-import 'package:voice_prescription/screens/login_signup/SignUp.dart';
+import 'package:provider/provider.dart';
+import 'package:voice_prescription/blocs/auth.dart';
+import 'package:voice_prescription/screens/auth/SignUp.dart';
 
-//import 'package:flutter_ui_challenges/src/widgets/network_image.dart';
-class LoginTwoPage extends StatelessWidget {
-  static final String path = "lib/src/pages/login/login2.dart";
-  String email;
-  String password;
-
-  var _formKey = GlobalKey<FormState>();
+class LoginScreen extends StatelessWidget {
+  final _formKey = GlobalKey<FormState>();
   Widget _buildPageContent(BuildContext context) {
     return Container(
       color: Colors.green.shade100,
@@ -36,7 +30,7 @@ class LoginTwoPage extends StatelessWidget {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (BuildContext context) => SignupOnePage()));
+                      builder: (BuildContext context) => SignupScreen()));
             }, //onPressed:
             child: Text("Sign Up",
                 style: TextStyle(color: Colors.green, fontSize: 18.0)),
@@ -47,6 +41,8 @@ class LoginTwoPage extends StatelessWidget {
   }
 
   Container _buildLoginForm(BuildContext context) {
+    String email;
+    String password;
     return Container(
       padding: EdgeInsets.all(20.0),
       child: Stack(
@@ -88,10 +84,7 @@ class LoginTwoPage extends StatelessWidget {
                             } else if (!RegExp(
                                     r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
                                 .hasMatch(value.trim())) {
-                              Toast.show("Please enyter a valid emial address",
-                                  context,
-                                  duration: Toast.LENGTH_SHORT,
-                                  gravity: Toast.BOTTOM);
+                              return "Please enyter a valid emial address";
                             }
                             return null;
                           },
@@ -176,27 +169,24 @@ class LoginTwoPage extends StatelessWidget {
                 onPressed: () async {
                   if (_formKey.currentState.validate()) {
                     _formKey.currentState.save();
+                    final auth = Provider.of<AuthBase>(context, listen: false);
                     try {
-                      // ignore: unused_local_variable
-                      var userCredential = await FirebaseAuth.instance
-                          .signInWithEmailAndPassword(
-                              email: email, password: password);
+                      auth.login(email, password);
                     } catch (e) {
-                      if (e.code == 'user-not-found') {
-                        Toast.show("No matching email address", context,
-                            duration: Toast.LENGTH_SHORT,
-                            gravity: Toast.BOTTOM);
-                      } else if (e.code == 'wrong-password') {
-                        Toast.show("Incorrect password", context,
-                            duration: Toast.LENGTH_SHORT,
-                            gravity: Toast.BOTTOM);
-                      }
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          actions: [
+                            FlatButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: Text("OK"))
+                          ],
+                          content: Text(e.message),
+                        ),
+                      );
                     }
-                    // Navigator.push(
-                    //     context,
-                    //     MaterialPageRoute(
-                    //         builder: (BuildContext context) =>
-                    //             FancyBottomBarPage()));
                   }
                 },
                 shape: RoundedRectangleBorder(
