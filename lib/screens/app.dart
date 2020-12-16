@@ -1,8 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fancy_bottom_navigation/fancy_bottom_navigation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:voice_prescription/modals/user.dart';
 import 'package:voice_prescription/screens/profile.dart';
 
 class Dashboard extends StatefulWidget {

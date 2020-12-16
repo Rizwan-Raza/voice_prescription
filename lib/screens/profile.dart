@@ -8,7 +8,7 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var auth = Provider.of<AuthBase>(context, listen: false);
+    AuthServices auth = Provider.of<AuthBase>(context, listen: false);
     UserModal user = auth.getUser();
     return Container(
       child: Center(
