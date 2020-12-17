@@ -1,39 +1,52 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fancy_bottom_navigation/fancy_bottom_navigation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:voice_prescription/modals/user.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:voice_prescription/screens/doctor_board.dart';
+import 'package:voice_prescription/screens/patient_board.dart';
 import 'package:voice_prescription/screens/profile.dart';
 
-class Dashboard extends StatefulWidget {
+class AppScreen extends StatefulWidget {
   // static final String path = "lib/src/pages/misc/navybar.dart";
   final String uid;
-  Dashboard({this.uid});
+  AppScreen({this.uid});
   @override
-  _DashboardState createState() => _DashboardState();
+  _AppScreenState createState() => _AppScreenState();
 }
 
-class _DashboardState extends State<Dashboard> {
+class _AppScreenState extends State<AppScreen> {
   // Selected Page Index
   int _selectedIndex = 0;
 
   // Page Storage Bucket
   final PageStorageBucket bucket = PageStorageBucket();
+  SharedPreferences _prefs;
+
+  _AppScreenState() {
+    init();
+  }
+
+  void init() async {
+    this._prefs = await SharedPreferences.getInstance();
+    print(this._prefs.getBool("isPatient"));
+    setState(() {
+      pages[1] =
+          this._prefs.getBool("isPatient") ? PatientBoard() : DoctorBoard();
+    });
+  }
 
   // Bottom Pages
-  List<Widget> pages;
+  List<Widget> pages = <Widget>[
+    Container(
+      child: Center(child: Text("Home")),
+    ),
+    Container(
+      child: Text("sdjfhsdj"),
+    ),
+    ProfileScreen(),
+  ];
   @override
   Widget build(BuildContext context) {
-    pages = <Widget>[
-      Container(
-        child: Center(child: Text("Home")),
-      ),
-      Container(
-        child: Center(child: Text("Dashboard")),
-      ),
-      ProfileScreen(),
-    ];
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Voice Prescription'),
