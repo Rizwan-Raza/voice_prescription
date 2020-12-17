@@ -167,12 +167,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
             flex: 1,
             child: Column(
               children: <Widget>[
-                Center(
-                  child: Text(
-                    'Error Status',
-                    style: TextStyle(fontSize: 22.0),
-                  ),
-                ),
+                // Center(
+                //   child: Text(
+                //     'Error Status',
+                //     style: TextStyle(fontSize: 22.0),
+                //   ),
+                // ),
                 Center(
                   child: Text(lastError),
                 ),
