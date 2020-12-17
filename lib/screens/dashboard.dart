@@ -23,7 +23,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   String lastStatus = '';
   String _currentLocaleId = '';
   int resultListened = 0;
-  List<LocaleName> _localeNames = [];
+  // List<LocaleName> _localeNames = [];
   final SpeechToText speech = SpeechToText();
 
   @override
@@ -38,7 +38,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     var hasSpeech = await speech.initialize(
         onError: errorListener, onStatus: statusListener, debugLogging: true);
     if (hasSpeech) {
-      _localeNames = await speech.locales();
+      // _localeNames = await speech.locales();
 
       var systemLocale = await speech.systemLocale();
       _currentLocaleId = systemLocale.localeId;
@@ -173,6 +173,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 //     style: TextStyle(fontSize: 22.0),
                 //   ),
                 // ),
+                RaisedButton(
+                  onPressed: () {
+                    print(lastWords);
+                  },
+                  child: Text("Ok"),
+                ),
                 Center(
                   child: Text(lastError),
                 ),
