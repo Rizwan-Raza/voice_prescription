@@ -5,6 +5,7 @@ import 'package:voice_prescription/modals/user.dart';
 
 abstract class AuthBase {
   login(String email, String password);
+  signup(UserModal user);
   getUser();
 }
 
