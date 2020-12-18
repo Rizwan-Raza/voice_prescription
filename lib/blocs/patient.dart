@@ -23,13 +23,13 @@ class PatientServices extends PatientBase {
   }
 
   getDiseases({bool diagnosed, String uid}) {
-    if (uid != null && diagnosed == null) {
+    if (uid != null) {
       return _fireStore
           .collection("diseases")
           .where("uid", isEqualTo: uid)
           .snapshots();
     }
-    if (diagnosed != null && uid == null) {
+    if (diagnosed != null) {
       return _fireStore
           .collection("diseases")
           .where("diagnosed", isEqualTo: diagnosed)

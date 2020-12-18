@@ -205,6 +205,7 @@ class _DiagnoseScreenState extends State<DiagnoseScreen> {
                                             enabled = true;
                                           });
                                           Navigator.pop(context);
+                                          Navigator.pop(context);
                                         }
                                       : null,
                                   child: Text("OK"))
