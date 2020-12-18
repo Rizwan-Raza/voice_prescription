@@ -25,9 +25,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
     // print(user);
     return Container(
       child: Center(
-        child: Text(this._prefs != null
-            ? this._prefs.getString("name")
-            : "Loading ..."),
+        child: ListView(
+          shrinkWrap: true,
+          children: [
+            Center(
+              child: Text(this._prefs != null
+                  ? this._prefs.getString("name")
+                  : "Loading ..."),
+            ),
+            SizedBox(
+              height: 50,
+            ),
+            Center(
+              child: Text(this._prefs != null
+                  ? this._prefs.getBool("isPatient")
+                      ? "Patient"
+                      : "Doctor"
+                  : "Loading ..."),
+            )
+          ],
+        ),
       ),
     );
   }

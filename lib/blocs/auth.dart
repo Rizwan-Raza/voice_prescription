@@ -17,23 +17,41 @@ class AuthServices extends AuthBase {
   AuthServices();
 
   login(String email, String password) async {
-    _fireAuth
-        .signInWithEmailAndPassword(email: email, password: password)
-        .then((value) async {
-      var obj = await _fireStore.collection("users").doc(value.user.uid).get();
-      SharedPreferences _prefs = await SharedPreferences.getInstance();
-      _prefs.setString("uid", value.user.uid);
-      _prefs.setBool("isPatient", obj.data()['isPatient']);
-      _prefs.setString("name", obj.data()['name']);
-      _prefs.setString("email", value.user.email);
-      user = UserModal.fromMap(obj.data());
-    }).catchError((onError) => print(onError.message));
+    var loginCreds = await _fireAuth.signInWithEmailAndPassword(
+        email: email, password: password);
+
+    var obj =
+        await _fireStore.collection("users").doc(loginCreds.user.uid).get();
+    updatePrefs(UserModal.fromMap(obj.data()));
+  }
+
+  signup(UserModal user) async {
+    UserCredential userCredential = await FirebaseAuth.instance
+        .createUserWithEmailAndPassword(
+            email: user.email, password: user.password);
+
+    user.uid = userCredential.user.uid;
+
+    await _fireStore.collection("users").doc(user.uid).set(user.toMap());
+    updatePrefs(user);
   }
 
   getUser() {
-    if (user == null) {
+    if (this.user == null) {
       // user = await _fireStore.collection("users").doc(value.user.uid).get();
     }
-    return user;
+    return this.user;
+  }
+
+  updatePrefs(UserModal user) async {
+    print(user.uid);
+    SharedPreferences _prefs = await SharedPreferences.getInstance();
+    _prefs.setString("uid", user.uid);
+    _prefs.setBool("isPatient", user.isPatient);
+    _prefs.setString("isPatientS", user.isPatient.toString());
+    print("patient added");
+    _prefs.setString("name", user.name);
+    _prefs.setString("email", user.email);
+    this.user = user;
   }
 }

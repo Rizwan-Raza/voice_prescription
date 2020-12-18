@@ -2,18 +2,21 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:speech_to_text/speech_recognition_error.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
+import 'package:voice_prescription/blocs/patient.dart';
+import 'package:voice_prescription/modals/disease.dart';
 
-class DashboardScreen extends StatefulWidget {
-  final String uid;
-  DashboardScreen({this.uid});
+class DiagnoseScreen extends StatefulWidget {
+  final DiseaseModal disease;
+  DiagnoseScreen({this.disease, Key key}) : super(key: key);
   @override
-  _DashboardScreenState createState() => _DashboardScreenState();
+  _DiagnoseScreenState createState() => _DiagnoseScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> {
+class _DiagnoseScreenState extends State<DiagnoseScreen> {
   bool _hasSpeech = false;
   double level = 0.0;
   double minSoundLevel = 50000;
@@ -23,7 +26,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   String lastStatus = '';
   String _currentLocaleId = '';
   int resultListened = 0;
-  // List<LocaleName> _localeNames = [];
+  List<LocaleName> _localeNames = [];
   final SpeechToText speech = SpeechToText();
 
   @override
@@ -38,7 +41,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     var hasSpeech = await speech.initialize(
         onError: errorListener, onStatus: statusListener, debugLogging: true);
     if (hasSpeech) {
-      // _localeNames = await speech.locales();
+      _localeNames = await speech.locales();
 
       var systemLocale = await speech.systemLocale();
       _currentLocaleId = systemLocale.localeId;
@@ -53,6 +56,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var enabled = true;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Make Prescription'),
@@ -85,23 +89,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ],
                 ),
-                // Row(
-                //   mainAxisAlignment: MainAxisAlignment.spaceAround,
-                //   children: <Widget>[
-                //     DropdownButton(
-                //       onChanged: (selectedVal) => _switchLang(selectedVal),
-                //       value: _currentLocaleId,
-                //       items: _localeNames
-                //           .map(
-                //             (localeName) => DropdownMenuItem(
-                //               value: localeName.localeId,
-                //               child: Text(localeName.name),
-                //             ),
-                //           )
-                //           .toList(),
-                //     ),
-                //   ],
-                // )
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: <Widget>[
+                    DropdownButton(
+                      onChanged: (selectedVal) => _switchLang(selectedVal),
+                      value: _currentLocaleId,
+                      items: _localeNames
+                          .map(
+                            (localeName) => DropdownMenuItem(
+                              value: localeName.localeId,
+                              child: Text(localeName.name),
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  ],
+                )
               ],
             ),
           ),
@@ -109,13 +113,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
             height: 50,
           ),
           Expanded(
-            flex: 4,
+            flex: 2,
             child: Column(
               children: <Widget>[
-                Text(
-                  'Prescription made',
-                  style: TextStyle(fontSize: 22.0),
-                ),
+                // Text(
+                //   'Prescription made',
+                //   style: TextStyle(fontSize: 22.0),
+                // ),
                 Expanded(
                   child: Stack(
                     children: <Widget>[
@@ -173,11 +177,59 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 //     style: TextStyle(fontSize: 22.0),
                 //   ),
                 // ),
-                RaisedButton(
-                  onPressed: () {
-                    print(lastWords);
-                  },
-                  child: Text("Ok"),
+                Expanded(
+                  flex: 1,
+                  child: Center(
+                    child: RaisedButton(
+                      color: Colors.green,
+                      textColor: Colors.white,
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            actions: [
+                              FlatButton(
+                                  onPressed: enabled
+                                      ? () async {
+                                          setState(() {
+                                            enabled = false;
+                                          });
+                                          widget.disease.prescription =
+                                              lastWords;
+                                          await Provider.of<PatientBase>(
+                                                  context,
+                                                  listen: false)
+                                              .makePrescription(widget.disease);
+                                          print("Prescription Made");
+                                          setState(() {
+                                            enabled = true;
+                                          });
+                                          Navigator.pop(context);
+                                        }
+                                      : null,
+                                  child: Text("OK"))
+                            ],
+                            content: Form(
+                              child: TextFormField(
+                                initialValue: lastWords,
+                                maxLines: 10,
+                                validator: (value) {
+                                  if (value.isEmpty) {
+                                    return 'Please enter prescription';
+                                  }
+                                  return null;
+                                },
+                                onSaved: (value) {
+                                  lastWords = value;
+                                },
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                      child: Text("Make Prescription"),
+                    ),
+                  ),
                 ),
                 Center(
                   child: Text(lastError),
@@ -210,8 +262,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     lastError = '';
     speech.listen(
         onResult: resultListener,
-        listenFor: Duration(seconds: 5),
-        pauseFor: Duration(seconds: 5),
+        listenFor: Duration(minutes: 3),
+        pauseFor: Duration(minutes: 3),
         partialResults: false,
         localeId: _currentLocaleId,
         onSoundLevelChange: soundLevelListener,
@@ -238,7 +290,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     ++resultListened;
     print('Result listener $resultListened');
     setState(() {
-      lastWords = '${result.recognizedWords} - ${result.finalResult}';
+      // lastWords = '${result.recognizedWords} - ${result.finalResult}';
+      lastWords = result.recognizedWords;
+      lastWords = lastWords.replaceAll(" and ", " \n\n");
     });
   }
 

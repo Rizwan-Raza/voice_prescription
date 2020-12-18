@@ -5,8 +5,15 @@ import 'package:voice_prescription/blocs/patient.dart';
 import 'package:voice_prescription/modals/disease.dart';
 import 'package:voice_prescription/modals/user.dart';
 
-class PatientBoard extends StatelessWidget {
+class PatientBoard extends StatefulWidget {
+  @override
+  _PatientBoardState createState() => _PatientBoardState();
+}
+
+class _PatientBoardState extends State<PatientBoard> {
   final _formKey = GlobalKey<FormState>();
+
+  bool enabled = true;
 
   @override
   Widget build(BuildContext context) {
@@ -22,25 +29,37 @@ class PatientBoard extends StatelessWidget {
               builder: (context) => AlertDialog(
                 actions: [
                   FlatButton(
-                      onPressed: () async {
-                        if (_formKey.currentState.validate()) {
-                          _formKey.currentState.save();
-                          SharedPreferences _prefs =
-                              await SharedPreferences.getInstance();
-                          diseaseModal.user = UserModal.fromMap({
-                            "uid": _prefs.getString("uid"),
-                            "name": _prefs.getString("name")
-                          });
+                      onPressed: enabled
+                          ? () async {
+                              setState(() {
+                                enabled = false;
+                              });
+                              if (_formKey.currentState.validate()) {
+                                _formKey.currentState.save();
+                                SharedPreferences _prefs =
+                                    await SharedPreferences.getInstance();
+                                diseaseModal.uid = _prefs.getString("uid");
+                                diseaseModal.user = UserModal.fromMap({
+                                  "uid": _prefs.getString("uid"),
+                                  "name": _prefs.getString("name")
+                                });
 
-                          PatientServices patientServices =
-                              Provider.of<PatientBase>(context, listen: false);
-                          patientServices
-                              .addDisease(diseaseModal)
-                              .then((value) {
-                            Navigator.pop(context);
-                          });
-                        }
-                      },
+                                diseaseModal.diagnosed = false;
+
+                                PatientServices patientServices =
+                                    Provider.of<PatientBase>(context,
+                                        listen: false);
+                                patientServices
+                                    .addDisease(diseaseModal)
+                                    .then((value) {
+                                  setState(() {
+                                    enabled = true;
+                                  });
+                                  Navigator.pop(context);
+                                });
+                              }
+                            }
+                          : null,
                       child: Text("OK"))
                 ],
                 content: Container(
@@ -83,7 +102,7 @@ class PatientBoard extends StatelessWidget {
                           keyboardType: TextInputType.datetime,
                           style: TextStyle(color: Colors.green),
                           decoration: InputDecoration(
-                              hintText: "Kab se h?",
+                              hintText: "Since when?",
                               hintStyle:
                                   TextStyle(color: Colors.green.shade200),
                               border: InputBorder.none,

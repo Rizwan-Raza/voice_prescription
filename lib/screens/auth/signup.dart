@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
+import 'package:provider/provider.dart';
+import 'package:voice_prescription/blocs/auth.dart';
 import 'package:voice_prescription/modals/user.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -313,17 +315,14 @@ class _SignupScreenState extends State<SignupScreen> {
                           user.isPatient = false;
                         }
                         _formKey.currentState.save();
-
+                        AuthServices auth =
+                            Provider.of<AuthBase>(context, listen: false);
                         try {
-                          // ignore: unused_local_variable
-                          UserCredential userCredential = await FirebaseAuth
-                              .instance
-                              .createUserWithEmailAndPassword(
-                                  email: user.email, password: user.password)
-                              .then((value) {
-                            user.uid = value.user.uid;
-                            return;
+                          await auth.signup(user);
+                          setState(() {
+                            enabled = enabled ? false : true;
                           });
+                          Navigator.pop(context);
                         } on FirebaseAuthException catch (e) {
                           if (e.code == 'weak-password') {
                             print('The password provided is too weak.');
@@ -333,19 +332,6 @@ class _SignupScreenState extends State<SignupScreen> {
                         } catch (e) {
                           print(e);
                         }
-
-                        FirebaseFirestore firestore =
-                            FirebaseFirestore.instance;
-                        firestore
-                            .collection("users")
-                            .doc(user.uid)
-                            .set(user.toMap())
-                            .then((data) {
-                          setState(() {
-                            enabled = enabled ? false : true;
-                          });
-                          Navigator.pop(context);
-                        }).catchError(print);
                       }
                     : null,
                 shape: RoundedRectangleBorder(

@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:voice_prescription/blocs/patient.dart';
-import 'package:voice_prescription/screens/dashboard.dart';
+import 'package:voice_prescription/modals/disease.dart';
+import 'package:voice_prescription/screens/diagnose.dart';
 
 class DoctorBoard extends StatefulWidget {
   const DoctorBoard({Key key}) : super(key: key);
@@ -14,35 +15,44 @@ class DoctorBoard extends StatefulWidget {
 class _DoctorBoardState extends State<DoctorBoard> {
   @override
   Widget build(BuildContext context) {
+    print("Aagye ");
     return FutureBuilder(
         future: SharedPreferences.getInstance(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            return FutureBuilder(
-                future: Provider.of<PatientBase>(context, listen: false)
-                    .getDiseases(snapshot.data.getString("uid")),
+            return StreamBuilder(
+                stream: Provider.of<PatientBase>(context, listen: false)
+                    .getDiseases(diagnosed: false),
                 builder: (context, sSnapshot) {
                   if (sSnapshot.hasData) {
                     List<dynamic> map = sSnapshot.data.docs;
                     // return ListView.builder(itemBuilder: (_, index) {
                     //   return ListTile(title: map[index].);
                     // });
+                    if (map.length == 0) {
+                      return Center(
+                        child: Text("No Diseases found"),
+                      );
+                    }
                     return Column(
-                        children: map
-                            .map((e) => ListTile(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => DashboardScreen(
-                                              uid: e.data()['user']['uid'])),
-                                    );
-                                  },
-                                  leading: Icon(Icons.opacity),
-                                  title: Text(e.data()['disease']),
-                                  subtitle: Text(e.data()['user']['name']),
-                                ))
-                            .toList());
+                        children: map.map((e) {
+                      DiseaseModal disease = DiseaseModal.fromMap(e.data());
+                      return ListTile(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    DiagnoseScreen(disease: disease)),
+                          );
+                        },
+                        leading: Icon(Icons.opacity),
+                        title: Text(disease.disease),
+                        isThreeLine: true,
+                        subtitle:
+                            Text(disease.user.name + "\n" + disease.kabSeH),
+                      );
+                    }).toList());
                     // return Text("Hello");
                   }
                   return Center(

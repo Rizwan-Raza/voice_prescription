@@ -5,7 +5,8 @@ import 'package:voice_prescription/modals/disease.dart';
 
 abstract class PatientBase {
   addDisease(DiseaseModal disease);
-  getDiseases(String uid);
+  getDiseases({bool diagnosed, String uid});
+  makePrescription(DiseaseModal disease);
 }
 
 class PatientServices extends PatientBase {
@@ -17,13 +18,30 @@ class PatientServices extends PatientBase {
     disease.did = Timeline.now.toString();
     return _fireStore
         .collection("diseases")
-        .doc(disease.user.uid)
-        .collection("list")
         .doc(disease.did)
         .set(disease.toMap());
   }
 
-  Future<QuerySnapshot> getDiseases(String uid) {
-    return _fireStore.collection("diseases").doc(uid).collection("list").get();
+  getDiseases({bool diagnosed, String uid}) {
+    if (uid != null && diagnosed == null) {
+      return _fireStore
+          .collection("diseases")
+          .where("uid", isEqualTo: uid)
+          .snapshots();
+    }
+    if (diagnosed != null && uid == null) {
+      return _fireStore
+          .collection("diseases")
+          .where("diagnosed", isEqualTo: diagnosed)
+          .snapshots();
+    }
+    return _fireStore.collection("diseases").snapshots();
+  }
+
+  makePrescription(DiseaseModal disease) async {
+    return _fireStore
+        .collection("diseases")
+        .doc(disease.did)
+        .update({"diagnosed": true, "prescription": disease.prescription});
   }
 }
