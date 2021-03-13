@@ -1,9 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:voice_prescription/blocs/auth.dart';
 import 'package:voice_prescription/blocs/patient.dart';
+import 'package:voice_prescription/modals/user.dart';
 import 'package:voice_prescription/screens/app.dart';
 import 'package:voice_prescription/screens/auth/login.dart';
 
@@ -46,9 +48,7 @@ class MyApp extends StatelessWidget {
               return Container(
                 color: Colors.green[200],
                 child: Center(
-                  child: CircularProgressIndicator(
-                    backgroundColor: Colors.black,
-                  ),
+                  child: CircularProgressIndicator(),
                 ),
               );
             },
@@ -62,6 +62,7 @@ class MyApp extends StatelessWidget {
 class HomeApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    AuthServices authServices = Provider.of<AuthBase>(context, listen: false);
     return StreamBuilder<User>(
       // Initialize FlutterFire
       stream: FirebaseAuth.instance.authStateChanges(),
@@ -84,6 +85,26 @@ class HomeApp extends StatelessWidget {
         }
         // Once complete, show your application
         if (snapshot.hasData) {
+          if (authServices.user == null) {
+            return FutureBuilder<DocumentSnapshot>(
+                future: FirebaseFirestore.instance
+                    .collection("users")
+                    .doc(snapshot.data.uid)
+                    .get(),
+                builder: (context, iSnapshot) {
+                  if (iSnapshot.hasData) {
+                    authServices.user =
+                        UserModal.fromMap(iSnapshot.data?.data());
+                    return AppScreen(uid: snapshot.data.uid);
+                  }
+                  return Container(
+                    color: Colors.green[200],
+                    child: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                });
+          }
           return AppScreen(uid: snapshot.data.uid);
         } else {
           return LoginScreen();

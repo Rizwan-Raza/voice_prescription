@@ -25,7 +25,7 @@ class LoginScreen extends StatelessWidget {
             height: 20.0,
           ),
           _buildLoginForm(context),
-          FlatButton(
+          TextButton(
             onPressed: () {
               Navigator.push(
                   context,
@@ -84,7 +84,7 @@ class LoginScreen extends StatelessWidget {
                             } else if (!RegExp(
                                     r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
                                 .hasMatch(value.trim())) {
-                              return "Please enyter a valid emial address";
+                              return "Please enter a valid emial address";
                             }
                             return null;
                           },
@@ -165,19 +165,19 @@ class LoginScreen extends StatelessWidget {
             height: 420,
             child: Align(
               alignment: Alignment.bottomCenter,
-              child: RaisedButton(
+              child: ElevatedButton(
                 onPressed: () async {
                   if (_formKey.currentState.validate()) {
                     _formKey.currentState.save();
                     final auth = Provider.of<AuthBase>(context, listen: false);
                     try {
-                      auth.login(email, password);
+                      await auth.login(email, password);
                     } catch (e) {
                       showDialog(
                         context: context,
                         builder: (context) => AlertDialog(
                           actions: [
-                            FlatButton(
+                            TextButton(
                                 onPressed: () {
                                   Navigator.pop(context);
                                 },
@@ -189,8 +189,13 @@ class LoginScreen extends StatelessWidget {
                     }
                   }
                 },
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(40.0)),
+                style: ElevatedButton.styleFrom(
+                  textStyle: TextStyle(
+                    color: Colors.green,
+                  ),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(40.0)),
+                ),
                 child: SizedBox(
                   width: 80,
                   child: Row(
@@ -204,7 +209,6 @@ class LoginScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-                color: Colors.green,
               ),
             ),
           )

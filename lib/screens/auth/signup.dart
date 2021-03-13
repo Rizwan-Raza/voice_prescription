@@ -301,7 +301,7 @@ class _SignupScreenState extends State<SignupScreen> {
             height: 572,
             child: Align(
               alignment: Alignment.bottomCenter,
-              child: RaisedButton(
+              child: ElevatedButton(
                 onPressed: enabled
                     ? () async {
                         setState(() {
@@ -333,10 +333,14 @@ class _SignupScreenState extends State<SignupScreen> {
                         }
                       }
                     : null,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(40.0)),
+                style: ElevatedButton.styleFrom(
+                  textStyle: TextStyle(
+                    color: Colors.green,
+                  ),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(40.0)),
+                ),
                 child: Text("Sign Up", style: TextStyle(color: Colors.white70)),
-                color: Colors.green,
               ),
             ),
           )

@@ -44,4 +44,8 @@ class PatientServices extends PatientBase {
         .doc(disease.did)
         .update({"diagnosed": true, "prescription": disease.prescription});
   }
+
+  removeDisease(String did) async {
+    return await _fireStore.collection("diseases").doc(did).delete();
+  }
 }

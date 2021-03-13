@@ -75,15 +75,15 @@ class _DiagnoseScreenState extends State<DiagnoseScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
-                    // FlatButton(
+                    // TextButton(
                     //   child: Text('Start'),
                     //   onPressed: null
                     // ),
-                    FlatButton(
+                    TextButton(
                       child: Text('Stop'),
                       onPressed: speech.isListening ? stopListening : null,
                     ),
-                    FlatButton(
+                    TextButton(
                       child: Text('Cancel'),
                       onPressed: speech.isListening ? cancelListening : null,
                     ),
@@ -180,15 +180,18 @@ class _DiagnoseScreenState extends State<DiagnoseScreen> {
                 Expanded(
                   flex: 1,
                   child: Center(
-                    child: RaisedButton(
-                      color: Colors.green,
-                      textColor: Colors.white,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          primary: Colors.green,
+                          textStyle: TextStyle(
+                            color: Colors.white,
+                          )),
                       onPressed: () {
                         showDialog(
                           context: context,
                           builder: (context) => AlertDialog(
                             actions: [
-                              FlatButton(
+                              TextButton(
                                   onPressed: enabled
                                       ? () async {
                                           setState(() {

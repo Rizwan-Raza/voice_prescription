@@ -1,19 +1,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:voice_prescription/modals/user.dart';
 
 abstract class AuthBase {
   login(String email, String password);
   signup(UserModal user);
-  getUser();
+  get user;
+  set user(UserModal user);
 }
 
 class AuthServices extends AuthBase {
   final FirebaseAuth _fireAuth = FirebaseAuth.instance;
   final FirebaseFirestore _fireStore = FirebaseFirestore.instance;
 
-  UserModal user;
+  UserModal _user;
 
   AuthServices();
 
@@ -21,9 +21,11 @@ class AuthServices extends AuthBase {
     var loginCreds = await _fireAuth.signInWithEmailAndPassword(
         email: email, password: password);
 
+    print(loginCreds);
+
     var obj =
         await _fireStore.collection("users").doc(loginCreds.user.uid).get();
-    updatePrefs(UserModal.fromMap(obj.data()));
+    this._user = UserModal.fromMap(obj.data());
   }
 
   signup(UserModal user) async {
@@ -34,25 +36,30 @@ class AuthServices extends AuthBase {
     user.uid = userCredential.user.uid;
 
     await _fireStore.collection("users").doc(user.uid).set(user.toMap());
-    updatePrefs(user);
+    this._user = user;
   }
 
-  getUser() {
-    if (this.user == null) {
-      // user = await _fireStore.collection("users").doc(value.user.uid).get();
-    }
-    return this.user;
+  get user {
+    return this._user;
   }
 
-  updatePrefs(UserModal user) async {
-    print(user.uid);
-    SharedPreferences _prefs = await SharedPreferences.getInstance();
-    _prefs.setString("uid", user.uid);
-    _prefs.setBool("isPatient", user.isPatient);
-    _prefs.setString("isPatientS", user.isPatient.toString());
-    print("patient added");
-    _prefs.setString("name", user.name);
-    _prefs.setString("email", user.email);
-    this.user = user;
+  set user(UserModal lUser) {
+    this._user = lUser;
+  }
+
+  logout() {
+    return this._fireAuth.signOut();
+  }
+
+  changePassword(String old, String newP) async {
+    await this._fireAuth.currentUser.reauthenticateWithCredential(
+        EmailAuthProvider.credential(
+            email: _fireAuth.currentUser.email, password: old));
+
+    return _fireAuth.currentUser.updatePassword(newP);
+  }
+
+  deleteAccount() async {
+    return _fireAuth.currentUser.delete();
   }
 }
