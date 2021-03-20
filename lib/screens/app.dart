@@ -8,7 +8,6 @@ import 'package:voice_prescription/screens/patient_board.dart';
 import 'package:voice_prescription/screens/profile.dart';
 
 class AppScreen extends StatefulWidget {
-  // static final String path = "lib/src/pages/misc/navbar.dart";
   final String uid;
   AppScreen({this.uid});
   @override
@@ -16,9 +15,6 @@ class AppScreen extends StatefulWidget {
 }
 
 class _AppScreenState extends State<AppScreen> {
-  // Selected Page Index
-  int _selectedIndex = 0;
-
   // Page Storage Bucket
   final PageStorageBucket bucket = PageStorageBucket();
 
@@ -47,7 +43,7 @@ class _AppScreenState extends State<AppScreen> {
       body: Container(
         height: MediaQuery.of(context).size.height - 142.0,
         child: IndexedStack(
-          index: _selectedIndex,
+          index: authServices.stackIndex,
           children: pages.map((Widget p) {
             return PageStorage(
               child: p,
@@ -57,6 +53,7 @@ class _AppScreenState extends State<AppScreen> {
         ),
       ),
       bottomNavigationBar: FancyBottomNavigation(
+        initialSelection: authServices.stackIndex,
         tabs: [
           TabData(iconData: Icons.home, title: "Home"),
           TabData(iconData: Icons.apps, title: "Dashboard"),
@@ -64,7 +61,7 @@ class _AppScreenState extends State<AppScreen> {
         ],
         onTabChangedListener: (int index) {
           setState(() {
-            this._selectedIndex = index;
+            authServices.stackIndex = index;
           });
         },
       ),

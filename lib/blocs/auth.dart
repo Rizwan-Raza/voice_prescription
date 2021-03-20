@@ -5,8 +5,12 @@ import 'package:voice_prescription/modals/user.dart';
 abstract class AuthBase {
   login(String email, String password);
   signup(UserModal user);
+  completeProfile({String gender, int age});
   get user;
   set user(UserModal user);
+
+  get stackIndex;
+  set stackIndex(int i);
 }
 
 class AuthServices extends AuthBase {
@@ -14,6 +18,7 @@ class AuthServices extends AuthBase {
   final FirebaseFirestore _fireStore = FirebaseFirestore.instance;
 
   UserModal _user;
+  int _sIndex = 0;
 
   AuthServices();
 
@@ -59,7 +64,20 @@ class AuthServices extends AuthBase {
     return _fireAuth.currentUser.updatePassword(newP);
   }
 
-  deleteAccount() async {
+  deleteAccount() {
     return _fireAuth.currentUser.delete();
+  }
+
+  completeProfile({String gender, int age}) {
+    return _fireStore.collection("users").doc(_fireAuth.currentUser.uid).update(
+        {if (gender != null) "gender": gender, if (age != null) "age": age});
+  }
+
+  get stackIndex {
+    return this._sIndex;
+  }
+
+  set stackIndex(int i) {
+    this._sIndex = i;
   }
 }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 import 'package:voice_prescription/blocs/auth.dart';
 import 'package:voice_prescription/modals/user.dart';
+import 'package:voice_prescription/screens/complete_profile.dart';
 
 class ProfileScreen extends StatefulWidget {
   @override
@@ -12,7 +14,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final _formKey = GlobalKey<FormState>();
 
   String oPassword;
-
   String nPassword;
 
   bool enabled = true;
@@ -21,6 +22,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     AuthServices authServices = Provider.of<AuthBase>(context, listen: false);
     UserModal user = authServices.user;
+    if ((user.age == null || user.gender == null) &&
+        authServices.stackIndex == 2) {
+      SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+        showModalBottomSheet<void>(
+          context: context,
+          isScrollControlled: true,
+          builder: (BuildContext context) {
+            return CompleteProfile();
+          },
+        );
+      });
+    }
+
     return Scaffold(
         backgroundColor: Colors.grey.shade100,
         extendBodyBehindAppBar: true,
@@ -33,10 +47,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Column(
             children: <Widget>[
               ProfileHeader(
-                avatar: NetworkImage(
-                    "https://firebasestorage.googleapis.com/v0/b/dl-flutter-ui-challenges.appspot.com/o/img%2F1.jpg?alt=media"),
-                coverImage: NetworkImage(
-                    "https://firebasestorage.googleapis.com/v0/b/dl-flutter-ui-challenges.appspot.com/o/img%2F2.jpg?alt=media"),
+                avatar: AssetImage("assets/images/avatar.png"),
+                // NetworkImage(
+                //     "https://firebasestorage.googleapis.com/v0/b/dl-flutter-ui-challenges.appspot.com/o/img%2F1.jpg?alt=media"),
+                coverImage: AssetImage("assets/images/banner.jpg"),
+                // NetworkImage(
+                //     "https://firebasestorage.googleapis.com/v0/b/dl-flutter-ui-challenges.appspot.com/o/img%2F2.jpg?alt=media"),
                 title: user.name,
                 subtitle: user.isPatient ? "Patient" : "Doctor",
                 actions: <Widget>[
@@ -82,11 +98,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ...ListTile.divideTiles(
                     color: Colors.grey,
                     tiles: [
-                      ListTile(
-                        leading: Icon(Icons.accessibility_new),
-                        title: Text("Gender"),
-                        subtitle: Text(user.gender.toString()),
-                      ),
+                      if (user.gender != null)
+                        ListTile(
+                          leading: Icon(Icons.accessibility_new),
+                          title: Text("Gender"),
+                          subtitle: Text(user.gender.toString()),
+                        ),
                       ListTile(
                         leading: Icon(Icons.email),
                         title: Text("Email"),
@@ -97,11 +114,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         title: Text("Phone"),
                         subtitle: Text(user.phoneNumber.toString()),
                       ),
-                      ListTile(
-                        leading: Icon(Icons.date_range),
-                        title: Text("Age"),
-                        subtitle: Text(user.age.toString()),
-                      ),
+                      if (user.age != null)
+                        ListTile(
+                          leading: Icon(Icons.date_range),
+                          title: Text("Age"),
+                          subtitle: Text(user.age.toString()),
+                        ),
                     ],
                   )
                 ],
@@ -147,40 +165,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             builder: (context) => AlertDialog(
                               actions: [
                                 TextButton(
-                                    onPressed: enabled
-                                        ? () async {
-                                            setState(() {
-                                              enabled = false;
-                                            });
-                                            if (_formKey.currentState
-                                                .validate()) {
-                                              _formKey.currentState.save();
-                                              try {
-                                                await authServices
-                                                    .changePassword(
-                                                        oPassword, nPassword);
-                                                setState(() {
-                                                  enabled = true;
-                                                });
-                                                _formKey.currentState.reset();
-                                                ScaffoldMessenger.of(context)
-                                                    .showSnackBar(SnackBar(
-                                                        content: Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          bottom: 32.0),
-                                                  child:
-                                                      Text("Password changed"),
-                                                )));
-                                                Navigator.pop(context);
-                                              } catch (e) {
-                                                print(e);
-                                              }
-                                              enabled = true;
+                                  onPressed: enabled
+                                      ? () async {
+                                          setState(() {
+                                            enabled = false;
+                                          });
+                                          if (_formKey.currentState
+                                              .validate()) {
+                                            _formKey.currentState.save();
+                                            try {
+                                              await authServices.changePassword(
+                                                  oPassword, nPassword);
+                                              setState(() {
+                                                enabled = true;
+                                              });
+                                              _formKey.currentState.reset();
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(SnackBar(
+                                                      content: Padding(
+                                                padding: const EdgeInsets.only(
+                                                    bottom: 32.0),
+                                                child: Text("Password changed"),
+                                              )));
+                                              Navigator.pop(context);
+                                            } catch (e) {
+                                              print(e);
                                             }
+                                            enabled = true;
                                           }
-                                        : null,
-                                    child: Text("OK"))
+                                        }
+                                      : null,
+                                  child: Text("OK"),
+                                ),
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: Text("CANCEL"),
+                                ),
                               ],
                               title: Text("Change password"),
                               content: ListView(
@@ -362,7 +382,7 @@ class ProfileHeader extends StatelessWidget {
               Avatar(
                 image: avatar,
                 radius: 40,
-                backgroundColor: Colors.white,
+                backgroundColor: Theme.of(context).primaryColor,
                 borderColor: Colors.grey.shade300,
                 borderWidth: 4.0,
               ),
