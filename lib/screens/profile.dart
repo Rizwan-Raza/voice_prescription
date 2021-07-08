@@ -22,18 +22,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     AuthServices authServices = Provider.of<AuthBase>(context, listen: false);
     UserModal user = authServices.user;
-    if ((user.age == null || user.gender == null) &&
-        authServices.stackIndex == 2) {
-      SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
-        showModalBottomSheet<void>(
-          context: context,
-          isScrollControlled: true,
-          builder: (BuildContext context) {
-            return CompleteProfile();
-          },
-        );
-      });
-    }
+    // if ((user.age == null || user.gender == null) &&
+    //     authServices.stackIndex == 2) {
+    //   SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+    //     showModalBottomSheet<void>(
+    //       context: context,
+    //       isScrollControlled: true,
+    //       builder: (BuildContext context) {
+    //         return CompleteProfile();
+    //       },
+    //     );
+    //   });
+    // }
 
     return Scaffold(
         backgroundColor: Colors.grey.shade100,

@@ -46,7 +46,9 @@ class _DoctorBoardState extends State<DoctorBoard> {
                       leading: Icon(Icons.opacity),
                       title: Text(disease.disease),
                       isThreeLine: true,
-                      subtitle: Text(disease.user.name + "\n" + disease.kabSeH),
+                      subtitle: Text(disease.user.name.toString() +
+                          "\n" +
+                          disease.kabSeH.toString()),
                     );
                   }).toList(),
                 ),

@@ -97,26 +97,30 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
                                             },
                                             child: Text("OK"))
                                       ],
-                                      content:
-                                          ListView(shrinkWrap: true, children: [
-                                        Text(
-                                          disease.user.name,
-                                          style: TextStyle(
-                                              color: Colors.green,
-                                              fontSize: 20.0),
-                                        ),
-                                        Text(disease.kabSeH),
-                                        SizedBox(
-                                          height: 20,
-                                        ),
-                                        Text(
-                                          disease.disease,
-                                          style: TextStyle(
-                                              color: Colors.red,
-                                              fontSize: 20.0),
-                                        ),
-                                        Text(disease.prescription)
-                                      ]),
+                                      content: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            disease.user.name,
+                                            style: TextStyle(
+                                                color: Colors.green,
+                                                fontSize: 20.0),
+                                          ),
+                                          Text(disease.kabSeH),
+                                          SizedBox(
+                                            height: 20,
+                                          ),
+                                          Text(
+                                            disease.disease,
+                                            style: TextStyle(
+                                                color: Colors.red,
+                                                fontSize: 20.0),
+                                          ),
+                                          Text(disease.prescription),
+                                        ],
+                                      ),
                                     ),
                                   )
                               : null,

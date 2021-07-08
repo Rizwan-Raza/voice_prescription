@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:voice_prescription/blocs/auth.dart';
 import 'package:voice_prescription/blocs/patient.dart';
 import 'package:voice_prescription/modals/disease.dart';
 import 'package:voice_prescription/modals/user.dart';
@@ -32,7 +33,10 @@ class _PatientBoardState extends State<PatientBoard> {
   @override
   Widget build(BuildContext context) {
     DiseaseModal diseaseModal = DiseaseModal();
+    AuthServices authServices = Provider.of<AuthBase>(context, listen: false);
+    UserModal user = authServices.user;
     return ListView(
+      shrinkWrap: true,
       children: <Widget>[
         ...ListTile.divideTiles(
           color: Colors.grey,
@@ -53,14 +57,9 @@ class _PatientBoardState extends State<PatientBoard> {
                                   });
                                   if (_formKey.currentState.validate()) {
                                     _formKey.currentState.save();
-                                    SharedPreferences _prefs =
-                                        await SharedPreferences.getInstance();
-                                    diseaseModal.uid = _prefs.getString("uid");
-                                    diseaseModal.user = UserModal.fromMap({
-                                      "uid": _prefs.getString("uid"),
-                                      "name": _prefs.getString("name")
-                                    });
 
+                                    diseaseModal.uid = user.uid;
+                                    diseaseModal.user = user;
                                     diseaseModal.diagnosed = false;
 
                                     PatientServices patientServices =
@@ -92,81 +91,68 @@ class _PatientBoardState extends State<PatientBoard> {
                           child: Text("OK"))
                     ],
                     title: Text("Add new disease"),
-                    content: ListView(
-                      shrinkWrap: true,
-                      children: [
-                        Form(
-                          key: _formKey,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Container(
-                                child: TextFormField(
-                                  style: TextStyle(color: Colors.green),
-                                  decoration: InputDecoration(
-                                      hintText: "Disease",
-                                      hintStyle: TextStyle(
-                                          color: Colors.green.shade200),
-                                      border: InputBorder.none,
-                                      icon: Icon(
-                                        Icons.opacity,
-                                        color: Colors.green,
-                                      )),
-                                  validator: (value) {
-                                    if (value.isEmpty) {
-                                      return 'Please enter a disease';
-                                    }
-                                    return null;
-                                  },
-                                  onSaved: (value) {
-                                    diseaseModal.disease = value;
-                                  },
-                                ),
-                              ),
-                              Container(
-                                child: Divider(
-                                  color: Colors.green.shade400,
-                                ),
-                                padding: EdgeInsets.only(bottom: 10.0),
-                              ),
-                              Container(
-                                child: InkWell(
-                                  onTap: () => _selectDate(context),
-                                  child: IgnorePointer(
-                                    child: TextFormField(
-                                      controller: _dateCtl,
-                                      style: TextStyle(color: Colors.green),
-                                      decoration: InputDecoration(
-                                          hintText: "Since when?",
-                                          hintStyle: TextStyle(
-                                              color: Colors.green.shade200),
-                                          border: InputBorder.none,
-                                          icon: Icon(
-                                            Icons.event,
-                                            color: Colors.green,
-                                          )),
-                                      validator: (value) {
-                                        if (value.isEmpty) {
-                                          return 'Please enter a date';
-                                        }
-                                        return null;
-                                      },
-                                      onSaved: (value) {
-                                        diseaseModal.kabSeH = value;
-                                      },
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                child: Divider(
-                                  color: Colors.green.shade400,
-                                ),
-                              ),
-                            ],
+                    content: Form(
+                      key: _formKey,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          TextFormField(
+                            style: TextStyle(color: Colors.green),
+                            decoration: InputDecoration(
+                                hintText: "Disease",
+                                hintStyle:
+                                    TextStyle(color: Colors.green.shade200),
+                                border: InputBorder.none,
+                                icon: Icon(
+                                  Icons.opacity,
+                                  color: Colors.green,
+                                )),
+                            validator: (value) {
+                              if (value.isEmpty) {
+                                return 'Please enter a disease';
+                              }
+                              return null;
+                            },
+                            onSaved: (value) {
+                              diseaseModal.disease = value;
+                            },
                           ),
-                        ),
-                      ],
+                          Divider(
+                            color: Colors.green.shade400,
+                          ),
+                          InkWell(
+                            onTap: () => _selectDate(context),
+                            child: IgnorePointer(
+                              child: TextFormField(
+                                controller: _dateCtl,
+                                style: TextStyle(color: Colors.green),
+                                decoration: InputDecoration(
+                                    hintText: "Since when?",
+                                    hintStyle:
+                                        TextStyle(color: Colors.green.shade200),
+                                    border: InputBorder.none,
+                                    icon: Icon(
+                                      Icons.event,
+                                      color: Colors.green,
+                                    )),
+                                validator: (value) {
+                                  if (value.isEmpty) {
+                                    return 'Please enter a date';
+                                  }
+                                  return null;
+                                },
+                                onSaved: (value) {
+                                  diseaseModal.kabSeH = value;
+                                },
+                              ),
+                            ),
+                          ),
+                          Divider(
+                            color: Colors.green.shade400,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 );
