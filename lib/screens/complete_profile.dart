@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:voice_prescription/blocs/auth.dart';
+import 'package:voice_prescription/main.dart';
 
 class CompleteProfile extends StatefulWidget {
   CompleteProfile({Key key}) : super(key: key);
@@ -98,6 +99,11 @@ class _CompleteProfileState extends State<CompleteProfile> {
                                 setState(() {
                                   showLoader = false;
                                 });
+                                Navigator.pushAndRemoveUntil(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => HomeApp()),
+                                    (route) => false);
                               }
                             }),
                       )

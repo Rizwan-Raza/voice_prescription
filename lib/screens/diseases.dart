@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:voice_prescription/blocs/auth.dart';
 import 'package:voice_prescription/blocs/patient.dart';
 import 'package:voice_prescription/modals/disease.dart';
+import 'package:voice_prescription/screens/prescription.dart';
 
 class DiseasesScreen extends StatefulWidget {
   @override
@@ -24,7 +25,20 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
             List<dynamic> map = sSnapshot.data.docs;
             if (map.length == 0) {
               return Center(
-                child: Text("No Diseases found"),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.task_alt,
+                      size: 48.0,
+                      color: Colors.black54,
+                    ),
+                    SizedBox(
+                      height: 24.0,
+                    ),
+                    Text("No Diseases found"),
+                  ],
+                ),
               );
             }
             return Column(
@@ -87,41 +101,48 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
                         },
                         child: ListTile(
                           onTap: disease.diagnosed
-                              ? () => showDialog(
-                                    context: context,
-                                    builder: (context) => AlertDialog(
-                                      actions: [
-                                        TextButton(
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                            },
-                                            child: Text("OK"))
-                                      ],
-                                      content: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            disease.user.name,
-                                            style: TextStyle(
-                                                color: Colors.green,
-                                                fontSize: 20.0),
-                                          ),
-                                          Text(disease.kabSeH),
-                                          SizedBox(
-                                            height: 20,
-                                          ),
-                                          Text(
-                                            disease.disease,
-                                            style: TextStyle(
-                                                color: Colors.red,
-                                                fontSize: 20.0),
-                                          ),
-                                          Text(disease.prescription),
-                                        ],
-                                      ),
-                                    ),
+                              ? () => Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            PrescriptionScreen(
+                                                disease: disease)),
+
+                                    // ? () => showDialog(
+                                    //       context: context,
+                                    //       builder: (context) => AlertDialog(
+                                    //         actions: [
+                                    //           TextButton(
+                                    //               onPressed: () {
+                                    //                 Navigator.pop(context);
+                                    //               },
+                                    //               child: Text("OK"))
+                                    //         ],
+                                    //         content: Column(
+                                    //           mainAxisSize: MainAxisSize.min,
+                                    //           crossAxisAlignment:
+                                    //               CrossAxisAlignment.start,
+                                    //           children: [
+                                    //             Text(
+                                    //               disease.user.name,
+                                    //               style: TextStyle(
+                                    //                   color: Colors.green,
+                                    //                   fontSize: 20.0),
+                                    //             ),
+                                    //             Text(disease.kabSeH),
+                                    //             SizedBox(
+                                    //               height: 20,
+                                    //             ),
+                                    //             Text(
+                                    //               disease.disease,
+                                    //               style: TextStyle(
+                                    //                   color: Colors.red,
+                                    //                   fontSize: 20.0),
+                                    //             ),
+                                    //             Text(disease.prescription),
+                                    //           ],
+                                    //         ),
+                                    //       ),
                                   )
                               : null,
                           leading: Icon(Icons.opacity),

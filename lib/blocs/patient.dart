@@ -39,10 +39,11 @@ class PatientServices extends PatientBase {
   }
 
   makePrescription(DiseaseModal disease) async {
-    return _fireStore
-        .collection("diseases")
-        .doc(disease.did)
-        .update({"diagnosed": true, "prescription": disease.prescription});
+    return _fireStore.collection("diseases").doc(disease.did).update({
+      "diagnosed": true,
+      "diagnoseDate": DateTime.now().toString(),
+      "prescription": disease.prescription
+    });
   }
 
   removeDisease(String did) async {

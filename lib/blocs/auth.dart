@@ -68,9 +68,12 @@ class AuthServices extends AuthBase {
     return _fireAuth.currentUser.delete();
   }
 
-  completeProfile({String gender, int age}) {
-    return _fireStore.collection("users").doc(_fireAuth.currentUser.uid).update(
+  completeProfile({String gender, int age}) async {
+    _user.gender = gender;
+    _user.age = age;
+    await _fireStore.collection("users").doc(_fireAuth.currentUser.uid).update(
         {if (gender != null) "gender": gender, if (age != null) "age": age});
+    _fireAuth.authStateChanges();
   }
 
   get stackIndex {

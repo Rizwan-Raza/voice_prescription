@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:voice_prescription/blocs/auth.dart';
 import 'package:voice_prescription/blocs/patient.dart';
 import 'package:voice_prescription/modals/disease.dart';

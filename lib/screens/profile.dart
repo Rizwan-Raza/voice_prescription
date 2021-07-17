@@ -17,23 +17,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String nPassword;
 
   bool enabled = true;
+  bool opened = false;
+
+  @override
+  void initState() {
+    opened = false;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     AuthServices authServices = Provider.of<AuthBase>(context, listen: false);
     UserModal user = authServices.user;
-    // if ((user.age == null || user.gender == null) &&
-    //     authServices.stackIndex == 2) {
-    //   SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
-    //     showModalBottomSheet<void>(
-    //       context: context,
-    //       isScrollControlled: true,
-    //       builder: (BuildContext context) {
-    //         return CompleteProfile();
-    //       },
-    //     );
-    //   });
-    // }
+    if ((user.age == null || user.gender == null) &&
+        authServices.stackIndex == 2 &&
+        !opened) {
+      opened = true;
+      SchedulerBinding.instance.addPostFrameCallback((timeStamp) async {
+        // return CompleteProfile();
+        await showModalBottomSheet<void>(
+          context: context,
+          isScrollControlled: true,
+          builder: (BuildContext context) {
+            return CompleteProfile();
+          },
+        );
+        opened = false;
+      });
+    }
 
     return Scaffold(
         backgroundColor: Colors.grey.shade100,
@@ -47,12 +58,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Column(
             children: <Widget>[
               ProfileHeader(
-                avatar: AssetImage("assets/images/avatar.png"),
-                // NetworkImage(
-                //     "https://firebasestorage.googleapis.com/v0/b/dl-flutter-ui-challenges.appspot.com/o/img%2F1.jpg?alt=media"),
-                coverImage: AssetImage("assets/images/banner.jpg"),
-                // NetworkImage(
-                //     "https://firebasestorage.googleapis.com/v0/b/dl-flutter-ui-challenges.appspot.com/o/img%2F2.jpg?alt=media"),
+                avatar:
+                    // AssetImage("assets/images/avatar.png"),
+                    NetworkImage(
+                        "https://firebasestorage.googleapis.com/v0/b/dl-flutter-ui-challenges.appspot.com/o/img%2F1.jpg?alt=media"),
+                coverImage:
+                    // AssetImage("assets/images/banner.jpg"),
+                    NetworkImage(
+                        "https://firebasestorage.googleapis.com/v0/b/dl-flutter-ui-challenges.appspot.com/o/img%2F2.jpg?alt=media"),
                 title: user.name,
                 subtitle: user.isPatient ? "Patient" : "Doctor",
                 actions: <Widget>[

@@ -48,6 +48,8 @@ class _AppScreenState extends State<AppScreen> {
             return PageStorage(
               child: p,
               bucket: bucket,
+              key: PageStorageKey(
+                  p.runtimeType.toString() + authServices.user.uid),
             );
           }).toList(),
         ),

@@ -25,7 +25,20 @@ class _DoctorBoardState extends State<DoctorBoard> {
             // });
             if (map.length == 0) {
               return Center(
-                child: Text("No Diseases found"),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.task_alt,
+                      size: 48.0,
+                      color: Colors.black54,
+                    ),
+                    SizedBox(
+                      height: 24.0,
+                    ),
+                    Text("No Diseases found"),
+                  ],
+                ),
               );
             }
             return Column(
