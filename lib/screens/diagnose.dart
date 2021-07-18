@@ -6,8 +6,10 @@ import 'package:provider/provider.dart';
 import 'package:speech_to_text/speech_recognition_error.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
+import 'package:voice_prescription/blocs/auth.dart';
 import 'package:voice_prescription/blocs/patient.dart';
 import 'package:voice_prescription/modals/disease.dart';
+import 'package:voice_prescription/modals/user.dart';
 
 class DiagnoseScreen extends StatefulWidget {
   final DiseaseModal disease;
@@ -28,6 +30,8 @@ class _DiagnoseScreenState extends State<DiagnoseScreen> {
   int resultListened = 0;
   List<LocaleName> _localeNames = [];
   final SpeechToText speech = SpeechToText();
+
+  GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -194,26 +198,40 @@ class _DiagnoseScreenState extends State<DiagnoseScreen> {
                               TextButton(
                                   onPressed: enabled
                                       ? () async {
-                                          setState(() {
-                                            enabled = false;
-                                          });
-                                          widget.disease.prescription =
-                                              lastWords;
-                                          await Provider.of<PatientBase>(
-                                                  context,
-                                                  listen: false)
-                                              .makePrescription(widget.disease);
-                                          print("Prescription Made");
-                                          setState(() {
-                                            enabled = true;
-                                          });
-                                          Navigator.pop(context);
-                                          Navigator.pop(context);
+                                          if (formKey.currentState.validate()) {
+                                            formKey.currentState.save();
+                                            setState(() {
+                                              enabled = false;
+                                            });
+                                            UserModal user =
+                                                await Provider.of<AuthBase>(
+                                                        context,
+                                                        listen: false)
+                                                    .user;
+                                            widget.disease.duid = user.uid;
+                                            widget.disease.prescribedBy =
+                                                user.name;
+                                            widget.disease.prescription =
+                                                lastWords.replaceAll(
+                                                    "\n\n", " *-*-*");
+                                            await Provider.of<PatientBase>(
+                                                    context,
+                                                    listen: false)
+                                                .makePrescription(
+                                                    widget.disease);
+                                            print("Prescription Made ----- ");
+                                            setState(() {
+                                              enabled = true;
+                                            });
+                                            Navigator.pop(context);
+                                            Navigator.pop(context);
+                                          }
                                         }
                                       : null,
                                   child: Text("OK"))
                             ],
                             content: Form(
+                              key: formKey,
                               child: TextFormField(
                                 initialValue: lastWords,
                                 maxLines: 10,
@@ -223,7 +241,7 @@ class _DiagnoseScreenState extends State<DiagnoseScreen> {
                                   }
                                   return null;
                                 },
-                                onSaved: (value) {
+                                onSaved: (String value) {
                                   lastWords = value;
                                 },
                               ),
@@ -296,7 +314,7 @@ class _DiagnoseScreenState extends State<DiagnoseScreen> {
     setState(() {
       // lastWords = '${result.recognizedWords} - ${result.finalResult}';
       lastWords = result.recognizedWords;
-      lastWords = lastWords.replaceAll(" and ", " \n\n");
+      lastWords = lastWords.replaceAll(" and ", "\n\n");
     });
   }
 

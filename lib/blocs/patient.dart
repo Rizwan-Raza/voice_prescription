@@ -5,7 +5,7 @@ import 'package:voice_prescription/modals/disease.dart';
 
 abstract class PatientBase {
   addDisease(DiseaseModal disease);
-  getDiseases({bool diagnosed, String uid});
+  getDiseases({bool diagnosed, String puid, String duid});
   makePrescription(DiseaseModal disease);
 }
 
@@ -22,11 +22,11 @@ class PatientServices extends PatientBase {
         .set(disease.toMap());
   }
 
-  getDiseases({bool diagnosed, String uid}) {
-    if (uid != null) {
+  getDiseases({bool diagnosed, String puid, String duid}) {
+    if (puid != null) {
       return _fireStore
           .collection("diseases")
-          .where("uid", isEqualTo: uid)
+          .where("puid", isEqualTo: puid)
           .snapshots();
     }
     if (diagnosed != null) {
@@ -42,6 +42,8 @@ class PatientServices extends PatientBase {
     return _fireStore.collection("diseases").doc(disease.did).update({
       "diagnosed": true,
       "diagnoseDate": DateTime.now().toString(),
+      "duid": disease.duid,
+      "prescribedBy": disease.prescribedBy,
       "prescription": disease.prescription
     });
   }

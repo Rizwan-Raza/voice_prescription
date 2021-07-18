@@ -57,7 +57,7 @@ class _PatientBoardState extends State<PatientBoard> {
                                   if (_formKey.currentState.validate()) {
                                     _formKey.currentState.save();
 
-                                    diseaseModal.uid = user.uid;
+                                    diseaseModal.puid = user.uid;
                                     diseaseModal.user = user;
                                     diseaseModal.diagnosed = false;
 

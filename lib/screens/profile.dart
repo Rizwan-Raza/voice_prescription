@@ -58,10 +58,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Column(
             children: <Widget>[
               ProfileHeader(
-                avatar:
-                    // AssetImage("assets/images/avatar.png"),
-                    NetworkImage(
-                        "https://firebasestorage.googleapis.com/v0/b/dl-flutter-ui-challenges.appspot.com/o/img%2F1.jpg?alt=media"),
+                avatar: AssetImage("assets/images/avatar.png"),
+                // NetworkImage(
+                //     "https://firebasestorage.googleapis.com/v0/b/dl-flutter-ui-challenges.appspot.com/o/img%2F1.jpg?alt=media"),
                 coverImage:
                     // AssetImage("assets/images/banner.jpg"),
                     NetworkImage(

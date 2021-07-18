@@ -18,8 +18,9 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
     AuthServices authServices = Provider.of<AuthBase>(context, listen: false);
     return StreamBuilder(
         stream: authServices.user.isPatient
-            ? patientServices.getDiseases(uid: authServices.user.uid)
-            : patientServices.getDiseases(diagnosed: true),
+            ? patientServices.getDiseases(puid: authServices.user.uid)
+            : patientServices.getDiseases(
+                duid: authServices.user.uid, diagnosed: true),
         builder: (context, sSnapshot) {
           if (sSnapshot.hasData) {
             List<dynamic> map = sSnapshot.data.docs;

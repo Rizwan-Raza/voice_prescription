@@ -15,17 +15,24 @@ class AppScreen extends StatefulWidget {
 }
 
 class _AppScreenState extends State<AppScreen> {
+  AuthServices authServices;
+  @override
+  void initState() {
+    super.initState();
+    authServices = Provider.of<AuthBase>(context, listen: false);
+    authServices.stackIndex = 0;
+  }
   // Page Storage Bucket
-  final PageStorageBucket bucket = PageStorageBucket();
+  // final PageStorageBucket bucket = PageStorageBucket();
 
   @override
   Widget build(BuildContext context) {
-    AuthServices authServices = Provider.of<AuthBase>(context, listen: false);
     List<Widget> pages = <Widget>[
       DiseasesScreen(),
       authServices.user.isPatient ? PatientBoard() : DoctorBoard(),
       ProfileScreen(),
     ];
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Voice Prescription'),
@@ -44,14 +51,7 @@ class _AppScreenState extends State<AppScreen> {
         height: MediaQuery.of(context).size.height - 142.0,
         child: IndexedStack(
           index: authServices.stackIndex,
-          children: pages.map((Widget p) {
-            return PageStorage(
-              child: p,
-              bucket: bucket,
-              key: PageStorageKey(
-                  p.runtimeType.toString() + authServices.user.uid),
-            );
-          }).toList(),
+          children: pages,
         ),
       ),
       bottomNavigationBar: FancyBottomNavigation(

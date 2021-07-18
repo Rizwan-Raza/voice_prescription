@@ -1,8 +1,13 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_share/flutter_share.dart';
+import 'package:flutter/services.dart';
+import 'package:open_file/open_file.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:permission_handler/permission_handler.dart';
+import 'package:share/share.dart';
 import 'package:voice_prescription/modals/disease.dart';
 
 class PrescriptionScreen extends StatefulWidget {
@@ -51,7 +56,7 @@ class _PrescriptionScreenState extends State<PrescriptionScreen> {
                           fontWeight: FontWeight.bold, fontSize: 18.0),
                     ),
                     Text(
-                      widget.disease.user.age ?? "NA",
+                      widget.disease.user.age.toString() ?? "NA",
                       style: TextStyle(fontSize: 20.0),
                     ),
                   ],
@@ -65,7 +70,7 @@ class _PrescriptionScreenState extends State<PrescriptionScreen> {
                           fontWeight: FontWeight.bold, fontSize: 18.0),
                     ),
                     Text(
-                      widget.disease.diagnoseDate ?? "NA",
+                      widget.disease.diagnoseDate.split(" ").first ?? "NA",
                       style: TextStyle(fontSize: 20.0),
                     ),
                   ],
@@ -121,11 +126,13 @@ class _PrescriptionScreenState extends State<PrescriptionScreen> {
                     SizedBox(
                       height: 16.0,
                     ),
-                    Container(
+                    Flexible(
+                      // height: 200,
                       child: ListView(
+                        // physics: ,
                         shrinkWrap: true,
                         children: widget.disease.prescription
-                            .split(" \\n\\n")
+                            .split(" *-*-*")
                             .map((element) => ListTile(
                                   leading: Icon(Icons.check),
                                   title: Text(element),
@@ -145,11 +152,11 @@ class _PrescriptionScreenState extends State<PrescriptionScreen> {
           switch (value) {
             case 0:
               await getPDF();
+              OpenFile.open(this.pdf.path);
               break;
             case 1:
-              File pdf = await getPDF();
-              FlutterShare.shareFile(
-                  title: widget.disease.disease, filePath: pdf.path);
+              await getPDF();
+              Share.shareFiles([this.pdf.path], text: widget.disease.disease);
               break;
           }
         },
@@ -164,20 +171,141 @@ class _PrescriptionScreenState extends State<PrescriptionScreen> {
 
   Future<File> getPDF() async {
     if (this.pdf == null) {
-      final pdf = pw.Document();
+      final pdf = pw.Document(
+          theme: pw.ThemeData(
+              defaultTextStyle: pw.TextStyle(
+                  font: pw.Font.ttf(
+                      await rootBundle.load("assets/OpenSans-Regular.ttf")))));
 
       pdf.addPage(
         pw.Page(
-          build: (pw.Context context) => pw.Center(
-            child: pw.Text('Hello World!'),
-          ),
+          build: (pw.Context context) => pw.Column(children: [
+            pw.Header(text: "Voice based Prescription"),
+            pw.Padding(
+              padding: pw.EdgeInsets.symmetric(vertical: 24.0),
+              child: pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.start,
+                  children: [
+                    pw.Text("Prescribed By: Dr. ${widget.disease.prescribedBy}",
+                        style: pw.TextStyle(fontSize: 18.0))
+                  ]),
+            ),
+            pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                      children: [
+                        pw.Text("Name",
+                            style: pw.TextStyle(
+                                fontSize: 18.0,
+                                fontWeight: pw.FontWeight.bold)),
+                        pw.Text(widget.disease.user.name ?? " NA",
+                            style: pw.TextStyle(fontSize: 20.0)),
+                      ]),
+                  pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                      children: [
+                        pw.Text("Age",
+                            style: pw.TextStyle(
+                                fontSize: 18.0,
+                                fontWeight: pw.FontWeight.bold)),
+                        pw.Text(widget.disease.user.age.toString() ?? "NA",
+                            style: pw.TextStyle(fontSize: 20.0)),
+                      ]),
+                  pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                      children: [
+                        pw.Text("Date",
+                            style: pw.TextStyle(
+                                fontSize: 18.0,
+                                fontWeight: pw.FontWeight.bold)),
+                        pw.Text(
+                            widget.disease.diagnoseDate.split(" ").first ??
+                                "NA",
+                            style: pw.TextStyle(fontSize: 20.0)),
+                      ]),
+                ]),
+            pw.SizedBox(height: 24.0),
+            pw.Column(
+              children: [
+                pw.Row(
+                  children: [
+                    pw.Text("Disease",
+                        style: pw.TextStyle(
+                            fontSize: 18.0, fontWeight: pw.FontWeight.bold)),
+                    pw.Text(
+                      ": ${widget.disease.disease}",
+                      style: pw.TextStyle(fontSize: 20.0),
+                    ),
+                  ],
+                ),
+                pw.SizedBox(height: 24.0),
+                pw.Row(
+                  children: [
+                    pw.Text("Suffering since",
+                        style: pw.TextStyle(
+                            fontSize: 18.0, fontWeight: pw.FontWeight.bold)),
+                    pw.Text(
+                      ": ${widget.disease.kabSeH}",
+                      style: pw.TextStyle(fontSize: 20.0),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            pw.SizedBox(height: 24.0),
+            pw.Expanded(
+              child: pw.Container(
+                padding: pw.EdgeInsets.all(16.0),
+                color: PdfColors.grey300,
+                child: pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+                  children: [
+                    pw.Text(
+                      "Drugs Name",
+                      textAlign: pw.TextAlign.center,
+                      style: pw.TextStyle(fontSize: 18.0),
+                    ),
+                    pw.SizedBox(
+                      height: 16.0,
+                    ),
+                    pw.Flexible(
+                      // height: 200,
+                      child: pw.ListView(
+                        // physics: ,
+                        children: widget.disease.prescription
+                            .split(" *-*-*")
+                            .map((element) => pw.Row(
+                                  children: [
+                                    // pw.Icon(pw.IconData(0xe156)),
+                                    pw.Text("•",
+                                        style: pw.TextStyle(fontSize: 20.0)),
+                                    pw.SizedBox(width: 16.0),
+                                    pw.Text(element,
+                                        style: pw.TextStyle(fontSize: 18.0)),
+                                  ],
+                                ))
+                            .toList(),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            )
+          ]),
         ),
       );
 
-      final file =
-          File('${widget.disease.disease}_${widget.disease.kabSeH}.pdf');
-      await file.writeAsBytes(await pdf.save());
-      this.pdf = file;
+      if ((await Permission.storage.request()).isGranted) {
+        Directory appDocDirectory = await getExternalStorageDirectory();
+        File file = File(
+            '${appDocDirectory.path}/${widget.disease.disease}_${widget.disease.kabSeH}.pdf');
+
+        file = await file.writeAsBytes(await pdf.save());
+
+        this.pdf = file;
+      }
     }
     return this.pdf;
   }

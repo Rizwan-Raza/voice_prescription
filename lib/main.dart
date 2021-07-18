@@ -95,7 +95,7 @@ class HomeApp extends StatelessWidget {
                   if (iSnapshot.hasData) {
                     authServices.user =
                         UserModal.fromMap(iSnapshot.data?.data());
-                    return AppScreen(uid: snapshot.data.uid);
+                    return new AppScreen(uid: snapshot.data.uid);
                   }
                   return Container(
                     color: Colors.green[200],
@@ -105,7 +105,7 @@ class HomeApp extends StatelessWidget {
                   );
                 });
           }
-          return AppScreen(uid: snapshot.data.uid);
+          return new AppScreen(uid: snapshot.data.uid);
         } else {
           return LoginScreen();
         }
